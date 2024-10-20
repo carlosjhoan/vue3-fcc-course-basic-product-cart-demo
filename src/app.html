@@ -23,7 +23,7 @@
             <span>Past Orders</span>
           </a>
         </nav>
-        <a href="#" class="top-bar-cart-link">
+        <a href="#" class="top-bar-cart-link" @click="toggleSidebar">
           <i class="icofont-cart-alt icofont-1x"></i>
           <span>Cart (0)</span>
         </a>
@@ -69,13 +69,13 @@
                     <label>Quantity:</label>
                   </div>
                   <div class="cell">
-                    <input type="number" v-model.number="inventory.carrots">
+                    <input type="number" v-model="inventory.carrots">
                   </div>
                 </div>
               </form>
             </div>
             <div class="card-footer">
-              <button @click="addToCart('carrots')" class="btn btn-light">
+              <button @click="addToCart('carrots')"  class="btn btn-light">
                 Add to cart
               </button>
             </div>
@@ -161,35 +161,140 @@
 
       </main>
 
+      <sideBar
+        v-if="isVisible"
+        :toggle="toggleSidebar"
+        :cart
+      />
+
       <footer>
       </footer>
 
     </div>
       
-    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script>
-      let app = Vue.createApp({
-        data() {
-          return {
-            inventory: {
-              carrots: 0,
-              pineapples: 0,
-              cherries: 0
-            },
-            cart: {
-              carrots: 0,
-              pineapples: 0,
-              cherries: 0
+        let app = Vue.createApp({
+          data() {
+
+            return {
+              inventory : {
+                carrots : 0,
+                pienapples : 0,
+                cherries : 0
+              },
+
+              cart : {
+                carrots : 0,
+                pienapples : 0,
+                cherries : 0
+              },
+
+              isVisible : false,
             }
-          }
-        },
-        methods: {
-          addToCart(type) {
-            this.cart[type] += this.inventory[type]
-            console.log(this.cart)
-          }
-        }
-      })
+
+          },
+
+          methods: {
+            addToCart(type) {
+
+              this.cart[type] += this.inventory[type];
+
+              // console.log(this.cart)
+
+            },
+
+            toggleSidebar () {
+
+              this.isVisible = !this.isVisible;
+              console.log(this.isVisible);
+
+            }
+
+          },
+
+          components : ['sideBar']
+        })
+
+        app.component('sidebar', {
+            // data() {
+            //   return  {
+            //     isVisible : false,
+            //   }
+
+            // },
+
+            template : `
+              <aside  class="cart-container">
+                <div class="cart">
+                  <h1 class="cart-title spread">
+                    <span>
+                      Cart
+                      <i class="icofont-cart-alt icofont-1x"></i>
+                    </span>
+                    <button @click="toggle"  class="cart-close">&times;</button>
+                  </h1>
+
+                  <div class="cart-body">
+                    <table class="cart-table">
+                      <thead>
+                        <tr>
+                          <th><span class="sr-only">Product Image</span></th>
+                          <th>Product</th>
+                          <th>Price</th>
+                          <th>Qty</th>
+                          <th>Total</th>
+                          <th><span class="sr-only">Actions</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <cartitem :cart />
+                      </tbody>
+                    </table>
+
+                    <p class="center"><em>No items in cart</em></p>
+                    <div class="spread">
+                      <span><strong>Total:</strong> \${{ cartTotal }}</span>
+                      <button class="btn btn-light">Checkout</button>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            
+            `,
+
+            props : ['toggle', 'cart'],
+
+            computed : {
+              cartTotal() {
+                return (this.cart.carrots * 4.8).toFixed(2);
+              }
+            }
+
+            
+
+        });
+
+        app.component('cartitem' , {
+
+          template : `
+            <tr>
+              <td><i class="icofont-carrot icofont-3x"></i></td>
+              <td>Carrot</td>
+              <td>$1.00</td>
+              <td class="center">{{ cart.carrots }}</td>
+              <td>$1.00</td>
+              <td class="center">
+                <button class="btn btn-light cart-remove">
+                  &times;
+                </button>
+              </td>
+            </tr>
+          `, 
+
+          props : ['cart']
+
+        })
 
       app.mount('#app')
     </script>
